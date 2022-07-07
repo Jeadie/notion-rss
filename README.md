@@ -7,3 +7,4 @@ Get RSS feeds in notion.so
 - Use rss.Item.Content into notion blocks so the content can be viewed in Notion.
 - Add Categories to RSS items, and notion content tables.
 - Convert combined RSS feeds into single feed: https://github.com/gorilla/feeds
+- Use release binary in `.github/workflows/release.yml`.

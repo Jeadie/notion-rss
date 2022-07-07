@@ -1,0 +1,20 @@
+name: Get Feed
+
+on:
+  schedule:
+    - cron: "0 14 * * *" # 12am AEST
+
+jobs:
+  get-rss-feed:
+    runs-on: ubuntu-latest
+    env:
+      NOTION_RSS_KEY: ${{ secrets.NOTION_API_TOKEN }}
+      NOTION_RSS_CONTENT_DATABASE_ID: ${{ secrets.NOTION_RSS_CONTENT_DATABASE_ID }}
+      NOTION_RSS_FEEDS_DATABASE_ID: ${{ secrets.NOTION_RSS_FEEDS_DATABASE_ID }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: run cron job
+        run: go run .
