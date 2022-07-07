@@ -79,7 +79,7 @@ func (dao *NotionDao) GetEnabledRssFeeds() chan *url.URL {
 func (dao NotionDao) AddRssItem(item RssItem) error {
 	_, err := dao.client.Page.Create(context.Background(), &notionapi.PageCreateRequest{
 		Parent: notionapi.Parent{
-			Type:       "database",
+			Type:       "database_id",
 			DatabaseID: dao.contentDatabaseId,
 		},
 		Properties: map[string]notionapi.Property{
