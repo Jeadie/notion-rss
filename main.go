@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 )
 
 func main() {
@@ -13,7 +14,9 @@ func main() {
 	}
 
 	rssUrls := nDao.GetEnabledRssFeeds()
-	rssContent := GetRssContent(rssUrls, 24)
+
+	timeSince := time.Now().Add(-1 * time.Hour * time.Duration(24))
+	rssContent := GetRssContent(rssUrls, timeSince)
 	for item := range rssContent {
 		nDao.AddRssItem(item)
 	}

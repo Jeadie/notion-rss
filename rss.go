@@ -15,19 +15,18 @@ type RssItem struct {
 
 // GetRssContent from a channel of RSS urls, parses new RSS items (that are from the lastNHours),
 // and sends them to an output channel.
-func GetRssContent(urls chan *url.URL, lastNHours int) chan RssItem {
+func GetRssContent(urls chan *url.URL, since time.Time) chan RssItem {
 	result := make(chan RssItem)
 
-	go func(urls chan *url.URL, lastNHours int, rssContent chan RssItem) {
+	go func(urls chan *url.URL, since time.Time, rssContent chan RssItem) {
 		defer close(result)
-		timeSince := time.Now().Add(-1 * time.Hour * time.Duration(lastNHours))
 
 		for u := range urls {
-			for _, item := range GetRssContentFrom(u, timeSince) {
+			for _, item := range GetRssContentFrom(u, since) {
 				rssContent <- *item
 			}
 		}
-	}(urls, lastNHours, result)
+	}(urls, since, result)
 
 	return result
 }
