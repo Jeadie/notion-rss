@@ -43,6 +43,7 @@ func ConstructNotionDao(feedDatabaseId string, contentDatabaseId string, integra
 	}
 }
 
+// GetEnabledRssFeeds from the Feed Database. Results filtered on property "Enabled"=true
 func (dao *NotionDao) GetEnabledRssFeeds() chan *url.URL {
 	rssUrls := make(chan *url.URL)
 
@@ -74,9 +75,9 @@ func (dao *NotionDao) GetEnabledRssFeeds() chan *url.URL {
 	return rssUrls
 }
 
-// AddRssItem to Notion database as a single new page with Block content.
-func (dao NotionDao) AddRssItem(item RssItem) {
-	dao.client.Page.Create(context.Background(), &notionapi.PageCreateRequest{
+// AddRssItem to Notion database as a single new page with Block content. On failure, no retry is attempted.
+func (dao NotionDao) AddRssItem(item RssItem) error {
+	_, err := dao.client.Page.Create(context.Background(), &notionapi.PageCreateRequest{
 		Parent: notionapi.Parent{
 			Type:       "database",
 			DatabaseID: dao.contentDatabaseId,
@@ -98,6 +99,7 @@ func (dao NotionDao) AddRssItem(item RssItem) {
 		},
 		Children: RssContentToBlocks(item),
 	})
+	return err
 }
 
 func RssContentToBlocks(item RssItem) []notionapi.Block {

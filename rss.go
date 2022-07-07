@@ -18,17 +18,16 @@ type RssItem struct {
 func GetRssContent(urls chan *url.URL, lastNHours int) chan RssItem {
 	result := make(chan RssItem)
 
-	go func(urls chan *url.URL, lastNHours int) {
-		defer close(urls)
+	go func(urls chan *url.URL, lastNHours int, rssContent chan RssItem) {
+		defer close(result)
 		timeSince := time.Now().Add(-1 * time.Hour * time.Duration(lastNHours))
 
-		rssContent := make(chan *RssItem)
 		for u := range urls {
 			for _, item := range GetRssContentFrom(u, timeSince) {
-				rssContent <- item
+				rssContent <- *item
 			}
 		}
-	}(urls, lastNHours)
+	}(urls, lastNHours, result)
 
 	return result
 }
@@ -43,7 +42,6 @@ func GetRssContentFrom(url *url.URL, afterTime time.Time) []*RssItem {
 	}
 
 	result := make([]*RssItem, len(feed.Items))
-
 	count := 0
 	for _, item := range feed.Items {
 		if item.PublishedParsed.After(afterTime) {
@@ -51,6 +49,7 @@ func GetRssContentFrom(url *url.URL, afterTime time.Time) []*RssItem {
 			count++
 		}
 	}
+	fmt.Printf("Feed %s has %d items. %d are within timerange and will be uploaded\n", url.String(), len(feed.Items), count)
 	return result[:count]
 }
 
