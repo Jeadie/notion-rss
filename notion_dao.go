@@ -6,6 +6,7 @@ import (
 	"github.com/jomei/notionapi"
 	"net/url"
 	"os"
+	"time"
 )
 
 type NotionDao struct {
@@ -41,6 +42,29 @@ func ConstructNotionDao(feedDatabaseId string, contentDatabaseId string, integra
 		contentDatabaseId: notionapi.DatabaseID(contentDatabaseId),
 		client:            notionapi.NewClient(notionapi.Token(integrationKey)),
 	}
+}
+
+// GetOldRSSItems that were created strictly before olderThan.
+func (dao NotionDao) GetOldRSSItems(olderThan time.Time) []notionapi.PageID {
+	resp, err := dao.client.Database.Query(context.TODO(), dao.contentDatabaseId, &notionapi.DatabaseQueryRequest{
+		Filter: notionapi.TimestampFilter{
+			CreatedTime: &notionapi.DateFilterCondition{
+				Before: (*notionapi.Date)(&olderThan),
+			},
+		},
+		// TODO: pagination
+		//StartCursor:    "",
+		//PageSize:       0,
+	})
+	if err != nil {
+		fmt.Printf("%s\n", err.Error())
+		return []notionapi.PageID{}
+	}
+	result := make([]notionapi.PageID, len(resp.Results))
+	for i, page := range resp.Results {
+		result[i] = notionapi.PageID(page.ID)
+	}
+	return result
 }
 
 // GetEnabledRssFeeds from the Feed Database. Results filtered on property "Enabled"=true
