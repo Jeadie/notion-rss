@@ -1,6 +1,4 @@
 # notion-rss
-> Expected to be at a stable Beta by 10/7. 
-
 Get RSS feeds in notion.so daily
 
 ## Database Interface
