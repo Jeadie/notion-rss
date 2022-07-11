@@ -67,6 +67,22 @@ func (dao NotionDao) GetOldRSSItems(olderThan time.Time) []notionapi.PageID {
 	return result
 }
 
+// ArchivePages for a list of pageIds. Will archive each page even if other pages fail.
+func (dao *NotionDao) ArchivePages(pageIds []notionapi.PageID) error {
+	failedCount := 0
+	for _, p := range pageIds {
+		_, err := dao.client.Page.Update(context.TODO(), p, &notionapi.PageUpdateRequest{Archived: true})
+		if err != nil {
+			fmt.Printf("Failed to archive page: %s. Error: %s\n", p.String(), err.Error())
+			failedCount++
+		}
+	}
+	if failedCount > 0 {
+		return fmt.Errorf("failed to archive %d pages", failedCount)
+	}
+	return nil
+}
+
 // GetEnabledRssFeeds from the Feed Database. Results filtered on property "Enabled"=true
 func (dao *NotionDao) GetEnabledRssFeeds() chan *FeedDatabaseItem {
 	rssFeeds := make(chan *FeedDatabaseItem)
