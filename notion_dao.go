@@ -44,14 +44,20 @@ func ConstructNotionDao(feedDatabaseId string, contentDatabaseId string, integra
 	}
 }
 
-// GetOldRSSItems that were created strictly before olderThan.
-func (dao NotionDao) GetOldRSSItems(olderThan time.Time) []notionapi.PageID {
+// GetOldUnstarredRSSItems that were created strictly before olderThan and are not starred.
+func (dao NotionDao) GetOldUnstarredRSSItems(olderThan time.Time) []notionapi.PageID {
 	resp, err := dao.client.Database.Query(context.TODO(), dao.contentDatabaseId, &notionapi.DatabaseQueryRequest{
-		Filter: notionapi.TimestampFilter{
-			CreatedTime: &notionapi.DateFilterCondition{
-				Before: (*notionapi.Date)(&olderThan),
-			},
-		},
+		Filter: (notionapi.AndCompoundFilter)([]notionapi.Filter{
+			notionapi.TimestampFilter{
+				CreatedTime: &notionapi.DateFilterCondition{
+					Before: (*notionapi.Date)(&olderThan),
+				},
+			}, notionapi.PropertyFilter{
+				Property: "Starred",
+				Checkbox: &notionapi.CheckboxFilterCondition{
+					Equals: false,
+				},
+			}}),
 		// TODO: pagination
 		//StartCursor:    "",
 		//PageSize:       0,
