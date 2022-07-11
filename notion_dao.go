@@ -44,10 +44,10 @@ func ConstructNotionDao(feedDatabaseId string, contentDatabaseId string, integra
 }
 
 // GetEnabledRssFeeds from the Feed Database. Results filtered on property "Enabled"=true
-func (dao *NotionDao) GetEnabledRssFeeds() chan *url.URL {
-	rssUrls := make(chan *url.URL)
+func (dao *NotionDao) GetEnabledRssFeeds() chan *FeedDatabaseItem {
+	rssFeeds := make(chan *FeedDatabaseItem)
 
-	go func(dao *NotionDao, output chan *url.URL) {
+	go func(dao *NotionDao, output chan *FeedDatabaseItem) {
 		defer close(output)
 
 		req := &notionapi.DatabaseQueryRequest{
@@ -65,14 +65,27 @@ func (dao *NotionDao) GetEnabledRssFeeds() chan *url.URL {
 			return
 		}
 		for _, r := range resp.Results {
-			urlProperty := r.Properties["Link"].(*notionapi.URLProperty).URL
-			rssUrl, err := url.Parse(urlProperty)
+			feed, err := GetRssFeedFromDatabaseObject(&r)
 			if err == nil {
-				rssUrls <- rssUrl
+				rssFeeds <- feed
 			}
 		}
-	}(dao, rssUrls)
-	return rssUrls
+	}(dao, rssFeeds)
+	return rssFeeds
+}
+
+func GetRssFeedFromDatabaseObject(p *notionapi.Page) (*FeedDatabaseItem, error) {
+	urlProperty := p.Properties["Link"].(*notionapi.URLProperty).URL
+	rssUrl, err := url.Parse(urlProperty)
+	if err != nil {
+		return &FeedDatabaseItem{}, err
+	}
+
+	return &FeedDatabaseItem{
+		FeedLink:     rssUrl,
+		Created:      p.CreatedTime,
+		LastModified: p.LastEditedTime,
+	}, nil
 }
 
 // AddRssItem to Notion database as a single new page with Block content. On failure, no retry is attempted.

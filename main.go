@@ -12,9 +12,9 @@ func main() {
 		panic(fmt.Errorf("configuration error: %w", err))
 	}
 
-	rssUrls := nDao.GetEnabledRssFeeds()
+	rssFeeds := nDao.GetEnabledRssFeeds()
 	last24Hours := time.Now().Add(-1 * time.Hour * time.Duration(24))
-	rssContent := GetRssContent(rssUrls, last24Hours)
+	rssContent := GetRssContent(rssFeeds, last24Hours)
 
 	failedCount := 0
 	for item := range rssContent {

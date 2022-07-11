@@ -13,42 +13,49 @@ type RssItem struct {
 	content []string
 }
 
+type FeedDatabaseItem struct {
+	FeedLink     *url.URL
+	Created      time.Time
+	LastModified time.Time
+}
+
 // GetRssContent from a channel of RSS urls, parses new RSS items (that are from the lastNHours),
 // and sends them to an output channel.
-func GetRssContent(urls chan *url.URL, since time.Time) chan RssItem {
+func GetRssContent(feedDatabaseItems chan *FeedDatabaseItem, since time.Time) chan RssItem {
 	result := make(chan RssItem)
 
-	go func(urls chan *url.URL, since time.Time, rssContent chan RssItem) {
+	go func(feeds chan *FeedDatabaseItem, since time.Time, rssContent chan RssItem) {
 		defer close(result)
 
-		for u := range urls {
-			for _, item := range GetRssContentFrom(u, since) {
+		for f := range feeds {
+			for _, item := range GetRssContentFrom(f, since) {
 				rssContent <- *item
 			}
 		}
-	}(urls, since, result)
+	}(feedDatabaseItems, since, result)
 
 	return result
 }
 
 // GetRssContentFrom since afterTime from the RSS feed found at url.
-func GetRssContentFrom(url *url.URL, afterTime time.Time) []*RssItem {
+func GetRssContentFrom(feed *FeedDatabaseItem, afterTime time.Time) []*RssItem {
 	fp := gofeed.NewParser()
-	feed, err := fp.ParseURL(url.String())
+	feedUrl := feed.FeedLink
+	feedContent, err := fp.ParseURL(feedUrl.String())
 	if err != nil {
-		fmt.Println(fmt.Errorf("could not get content from rss url: %s. Error occurred %w", url, err).Error())
+		fmt.Println(fmt.Errorf("could not get content from rss url: %s. Error occurred %w", feedUrl, err).Error())
 		return []*RssItem{}
 	}
 
-	result := make([]*RssItem, len(feed.Items))
+	result := make([]*RssItem, len(feedContent.Items))
 	count := 0
-	for _, item := range feed.Items {
+	for _, item := range feedContent.Items {
 		if item.PublishedParsed.After(afterTime) {
 			result[count] = convert(item)
 			count++
 		}
 	}
-	fmt.Printf("Feed %s has %d items. %d are within timerange and will be uploaded\n", url.String(), len(feed.Items), count)
+	fmt.Printf("Feed %s has %d items. %d are within timerange and will be uploaded\n", feedUrl.String(), len(feedContent.Items), count)
 	return result[:count]
 }
 
