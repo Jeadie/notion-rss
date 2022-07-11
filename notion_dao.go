@@ -81,15 +81,28 @@ func GetRssFeedFromDatabaseObject(p *notionapi.Page) (*FeedDatabaseItem, error) 
 		return &FeedDatabaseItem{}, err
 	}
 
+	nameRichTexts := p.Properties["Title"].(*notionapi.TitleProperty).Title
+	if len(nameRichTexts) == 0 {
+		return &FeedDatabaseItem{}, fmt.Errorf("RSS Feed database entry does not have any Title in 'Title' field")
+	}
+
 	return &FeedDatabaseItem{
 		FeedLink:     rssUrl,
 		Created:      p.CreatedTime,
 		LastModified: p.LastEditedTime,
+		Name:         nameRichTexts[0].PlainText,
 	}, nil
 }
 
 // AddRssItem to Notion database as a single new page with Block content. On failure, no retry is attempted.
 func (dao NotionDao) AddRssItem(item RssItem) error {
+	categories := make([]notionapi.Option, len(item.categories))
+	for i, c := range item.categories {
+		categories[i] = notionapi.Option{
+			Name: c,
+		}
+	}
+
 	_, err := dao.client.Page.Create(context.Background(), &notionapi.PageCreateRequest{
 		Parent: notionapi.Parent{
 			Type:       "database_id",
@@ -109,6 +122,11 @@ func (dao NotionDao) AddRssItem(item RssItem) error {
 				Type: "url",
 				URL:  item.link.String(),
 			},
+			"Categories": notionapi.MultiSelectProperty{
+				MultiSelect: categories,
+			},
+			"From":      notionapi.SelectProperty{Select: notionapi.Option{Name: item.feedName}},
+			"Published": notionapi.DateProperty{Date: &notionapi.DateObject{Start: (*notionapi.Date)(item.published)}},
 		},
 		Children: RssContentToBlocks(item),
 	})

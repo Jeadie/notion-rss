@@ -20,6 +20,9 @@ This project uses two notion databases: to store RSS links (to subscribe to), to
 | Title | title |
 | Link | url |
 | Enabled | boolean |
+| From | Select |
+| Categories | MultiSelect |
+| Pubilshed | Date |
 
 ## Github Action Secrets
 Github Secrets needed in the repository for the workflow actions to work:
