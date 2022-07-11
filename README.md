@@ -28,11 +28,8 @@ Github Secrets needed in the repository for the workflow actions to work:
 - `NOTION_RSS_FEEDS_DATABASE_ID`: notion.so database id that stores RSS feed details (see Database Interface / Feeds Database).
 
 ## Nice to haves
+1. Add all items from RSS feed when created date of notion database entry is within time window.
 1. Use rss.Item.Content into notion blocks so the content can be viewed in Notion.
-  - Convert HTML/markdown into AST: https://pkg.go.dev/github.com/gomarkdown/markdown/ast#NodeVisitor
-  - Need to make AST -> Notion/blocks
-  - Maybe make a standalone package: HTML -> notion-blocks 
-
 2. Add Categories to RSS items, and notion content tables.
 3. Remove old, unread/starred items
 4. Use release binary in `.github/workflows/release.yml`.
