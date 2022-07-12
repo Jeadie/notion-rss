@@ -31,5 +31,8 @@ Github Secrets needed in the repository for the workflow actions to work:
 
 ## Nice to haves
 1. Use rss.Item.Content into notion blocks so the content can be viewed in Notion.
-1. Use release binary in `.github/workflows/release.yml`.
-1. Convert combined RSS feeds into single feed: https://github.com/gorilla/feeds
+2. Use release binary in `.github/workflows/release.yml`.
+3. Write unit tests
+4. Write integration tests
+5. Finish Github action to run unit and integration tests.
+6. Convert combined RSS feeds into single feed: https://github.com/gorilla/feeds

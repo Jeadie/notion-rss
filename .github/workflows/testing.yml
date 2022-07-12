@@ -1,0 +1,36 @@
+on: [push, pull_request]
+
+name: Testing
+
+env:
+  NOTION_RSS_KEY: ${{ secrets.NOTION_API_TOKEN }}
+
+  # TODO: Add link to locked, public notion table
+  NOTION_RSS_CONTENT_DATABASE_ID: "HARDCODED STRING"
+
+  # TODO: Add link to locked, public notion table
+  NOTION_RSS_FEEDS_DATABASE_ID: "HARDCODED STRING"
+
+jobs:
+  test-code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: check-go-fmt
+        run: test -z `go fmt ./...`
+      - name: test
+        run: go test ./...
+
+  integration-tests:
+    name: checkout
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: integration-tests
+        run: `echo "Write some integration tests"`
