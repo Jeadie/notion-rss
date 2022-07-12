@@ -48,22 +48,28 @@ func ConstructNotionDao(feedDatabaseId string, contentDatabaseId string, integra
 func (dao NotionDao) GetOldUnstarredRSSItems(olderThan time.Time) []notionapi.PageID {
 	resp, err := dao.client.Database.Query(context.TODO(), dao.contentDatabaseId, &notionapi.DatabaseQueryRequest{
 		Filter: (notionapi.AndCompoundFilter)([]notionapi.Filter{
-			notionapi.TimestampFilter{
-				CreatedTime: &notionapi.DateFilterCondition{
+
+			// Use `Created`, not `Published` as to avoid deleting cold-started RSS feeds.
+			notionapi.PropertyFilter{
+				Property: "Created",
+				Date: &notionapi.DateFilterCondition{
 					Before: (*notionapi.Date)(&olderThan),
 				},
-			}, notionapi.PropertyFilter{
+			},
+			notionapi.PropertyFilter{
 				Property: "Starred",
 				Checkbox: &notionapi.CheckboxFilterCondition{
-					Equals: false,
+					Equals:       false,
+					DoesNotEqual: true,
 				},
-			}}),
+			},
+		}),
 		// TODO: pagination
 		//StartCursor:    "",
 		//PageSize:       0,
 	})
 	if err != nil {
-		fmt.Printf("%s\n", err.Error())
+		fmt.Printf("error occurred in GetOldUnstarredRSSItems. Error: %s\n", err.Error())
 		return []notionapi.PageID{}
 	}
 	result := make([]notionapi.PageID, len(resp.Results))
