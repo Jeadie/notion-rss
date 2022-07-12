@@ -60,7 +60,7 @@ func AddNewContent(nDao *NotionDao) error {
 	for item := range rssContent {
 		err := nDao.AddRssItem(item)
 		if err != nil {
-			fmt.Printf("Could not create page for %s, URL: %s. Error: %s\n", item.title, item.link, err.Error())
+			fmt.Printf("Could not create page for %s, URL: %s. Error: %s\n", item.title, item.link.String(), err.Error())
 			failedCount++
 		}
 	}
