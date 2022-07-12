@@ -33,4 +33,4 @@ jobs:
         with:
           fetch-depth: 0
       - name: integration-tests
-        run: `echo "Write some integration tests"`
+        run: echo "Write some integration tests"
