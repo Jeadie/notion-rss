@@ -5,11 +5,9 @@ name: Testing
 env:
   NOTION_RSS_KEY: ${{ secrets.NOTION_API_TOKEN }}
 
-  # TODO: Add link to locked, public notion table
-  NOTION_RSS_CONTENT_DATABASE_ID: "HARDCODED STRING"
-
-  # TODO: Add link to locked, public notion table
-  NOTION_RSS_FEEDS_DATABASE_ID: "HARDCODED STRING"
+  # Required: Manually share database with the notion integration with api key `NOTION_RSS_KEY`.
+  NOTION_RSS_CONTENT_DATABASE_ID: "7ce7588a89734b8081cbb4869ba36460"
+  NOTION_RSS_FEEDS_DATABASE_ID: "44d719ce002943deada2cf7d91d32274"
 
 jobs:
   test-code:

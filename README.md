@@ -10,18 +10,19 @@ This project uses two notion databases: to store RSS links (to subscribe to), to
 | --- | :-- |
 | Title | title |
 | Link | url |
+| Enabled | checkbox |
 
 ### Content Database
 
 | Property Name | Property Type |
 | --- | :-- |
 | Title | title |
-| Link | url |
-| Enabled | boolean |
+| Link | Url |
+| Enabled | Checkbox |
 | From | Select |
 | Categories | MultiSelect |
 | Pubilshed | Date |
-| Starred | boolean |
+| Starred | Checkbox |
 
 ## Github Action Secrets
 Github Secrets needed in the repository for the workflow actions to work:
