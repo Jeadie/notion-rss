@@ -127,6 +127,9 @@ func (dao *NotionDao) GetEnabledRssFeeds() chan *FeedDatabaseItem {
 }
 
 func GetRssFeedFromDatabaseObject(p *notionapi.Page) (*FeedDatabaseItem, error) {
+	if p.Properties["Link"] == nil || p.Properties["Title"] == nil {
+		return &FeedDatabaseItem{}, fmt.Errorf("notion page is expected to have `Link` and `Title` properties. Properties: %s", p.Properties)
+	}
 	urlProperty := p.Properties["Link"].(*notionapi.URLProperty).URL
 	rssUrl, err := url.Parse(urlProperty)
 	if err != nil {

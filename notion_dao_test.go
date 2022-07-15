@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/jomei/notionapi"
 	"net/url"
 	"os"
@@ -111,6 +112,7 @@ func TestGetRssFeedFromDatabaseObject(t *testing.T) {
 		page *notionapi.Page
 		expectedDbItem *FeedDatabaseItem
 		expectedErr   error
+		subTestName string
 	}
 
 	editedTime := time.Now()
@@ -131,32 +133,63 @@ func TestGetRssFeedFromDatabaseObject(t *testing.T) {
 				LastModified: editedTime,
 			},
 			expectedErr:    nil,
+			subTestName: "valid parsing",
+		},
+		{
+			page: &notionapi.Page{
+				LastEditedTime: editedTime,
+				Properties:     map[string]notionapi.Property{
+					"Title": &notionapi.TitleProperty{},
+					"Link": &notionapi.URLProperty{URL: repoUrl.String()},
+					"Enabled": &notionapi.CheckboxProperty{Checkbox: true},
+				},
+			},
+			expectedDbItem: &FeedDatabaseItem{},
+			expectedErr:    fmt.Errorf("failed"),
+			subTestName: "no Title element in TitleProperty",
+		},
+		{
+			page: &notionapi.Page{
+				LastEditedTime: editedTime,
+				Properties:     map[string]notionapi.Property{
+					"Link": &notionapi.URLProperty{URL: repoUrl.String()},
+					"Enabled": &notionapi.CheckboxProperty{Checkbox: true},
+				},
+			},
+			expectedDbItem: &FeedDatabaseItem{},
+			expectedErr:    fmt.Errorf("failed"),
+			subTestName: "Missing TitleProperty",
 		},
 	}
 
 	for _, test := range tests {
-		item, err := GetRssFeedFromDatabaseObject(test.page)
-
-		if err != test.expectedErr {
-			if err != nil {
-				t.Errorf("Unexpected error occurred. Error: %s \n", err.Error())
+		t.Run(test.subTestName, func(t *testing.T) {
+			item, err := GetRssFeedFromDatabaseObject(test.page)
+			if (err != nil) != (test.expectedErr != nil) {
+				if err != nil {
+					t.Errorf("Unexpected error occurred. Error: %s \n", err.Error())
+				} else {
+					t.Errorf("Error was expected, but none returned. Expected error: %s \n", test.expectedErr.Error())
+				}
 			}
-			t.Errorf("Error was expected, but none returned. Expected error: %s \n", test.expectedErr.Error())
-		}
 
-		expectedItem := test.expectedDbItem
-		if item.Name != expectedItem.Name {
-			t.Errorf("Incorrect name of item. Expected %s, returned %s", expectedItem.Name, item.Name)
-		}
-		if item.FeedLink.String() != expectedItem.FeedLink.String() {
-			t.Errorf("Incorrect RSS feed url. Expected %s, returned %s", expectedItem.FeedLink, item.FeedLink)
-		}
-		if item.Created != expectedItem.Created {
-			t.Errorf("Incorrect created timestamp. Expected %s, returned %s", expectedItem.Created, item.Created)
-		}
-		if item.LastModified != expectedItem.LastModified {
-			t.Errorf("Incorrect last modified timestamp. Expected %s, returned %s", expectedItem.LastModified, item.LastModified)
-		}
+			if test.expectedErr == nil {
+				expectedItem := test.expectedDbItem
+				if item.Name != expectedItem.Name {
+					t.Errorf("Incorrect name of item. Expected %s, returned %s", expectedItem.Name, item.Name)
+				}
+				if item.FeedLink.String() != expectedItem.FeedLink.String() {
+					t.Errorf("Incorrect RSS feed url. Expected %s, returned %s", expectedItem.FeedLink, item.FeedLink)
+				}
+				if item.Created != expectedItem.Created {
+					t.Errorf("Incorrect created timestamp. Expected %s, returned %s", expectedItem.Created, item.Created)
+				}
+				if item.LastModified != expectedItem.LastModified {
+					t.Errorf("Incorrect last modified timestamp. Expected %s, returned %s", expectedItem.LastModified, item.LastModified)
+				}
+			}
+
+		})
 	}
 
 }
