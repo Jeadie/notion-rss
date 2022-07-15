@@ -20,7 +20,7 @@ func GetAllTasks() []NotionTask {
 
 // ArchiveOldUnstarredContent from the content database that is older than 30 days and is not starred.
 func ArchiveOldUnstarredContent(nDao *NotionDao) error {
-	pageIds := nDao.GetOldUnstarredRSSItems(time.Now().Add(-30 * time.Hour * time.Duration(24)))
+	pageIds := nDao.GetOldUnstarredRSSItemIds(time.Now().Add(-30 * time.Hour * time.Duration(24)))
 	return nDao.ArchivePages(pageIds)
 }
 

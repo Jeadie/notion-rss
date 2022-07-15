@@ -16,6 +16,7 @@
 
 # Local environment variables
 .env.local
+.env.integ
 
 # IDE
 .idea/

@@ -45,7 +45,7 @@ func ConstructNotionDao(feedDatabaseId string, contentDatabaseId string, integra
 }
 
 // GetOldUnstarredRSSItems that were created strictly before olderThan and are not starred.
-func (dao NotionDao) GetOldUnstarredRSSItems(olderThan time.Time) []notionapi.PageID {
+func (dao NotionDao) GetOldUnstarredRSSItems(olderThan time.Time) []notionapi.Page {
 	resp, err := dao.client.Database.Query(context.TODO(), dao.contentDatabaseId, &notionapi.DatabaseQueryRequest{
 		Filter: (notionapi.AndCompoundFilter)([]notionapi.Filter{
 
@@ -70,10 +70,15 @@ func (dao NotionDao) GetOldUnstarredRSSItems(olderThan time.Time) []notionapi.Pa
 	})
 	if err != nil {
 		fmt.Printf("error occurred in GetOldUnstarredRSSItems. Error: %s\n", err.Error())
-		return []notionapi.PageID{}
+		return []notionapi.Page{}
 	}
-	result := make([]notionapi.PageID, len(resp.Results))
-	for i, page := range resp.Results {
+	return resp.Results
+}
+
+func (dao NotionDao) GetOldUnstarredRSSItemIds(olderThan time.Time) []notionapi.PageID {
+	pages := dao.GetOldUnstarredRSSItems(olderThan)
+	result := make([]notionapi.PageID, len(pages))
+	for i, page := range pages {
 		result[i] = notionapi.PageID(page.ID)
 	}
 	return result

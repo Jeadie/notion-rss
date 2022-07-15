@@ -21,8 +21,9 @@ This project uses two notion databases: to store RSS links (to subscribe to), to
 | Enabled | Checkbox |
 | From | Select |
 | Categories | MultiSelect |
-| Pubilshed | Date |
+| Published | Date |
 | Starred | Checkbox |
+| Created | Date |
 
 ## Github Action Secrets
 Github Secrets needed in the repository for the workflow actions to work:

@@ -52,6 +52,10 @@ func TestConstructNotionDaoFromEnv(t *testing.T) {
 	PRIOR_NOTION_RSS_CONTENT_DATABASE_ID, PNRCDI_exists, NOTION_RSS_CONTENT_DATABASE_ID := getEnvWithDefault("NOTION_RSS_CONTENT_DATABASE_ID", "NOTION_RSS_CONTENT_DATABASE_ID")
 	PRIOR_NOTION_RSS_FEEDS_DATABASE_ID, PNRFDI_exists, NOTION_RSS_FEEDS_DATABASE_ID := getEnvWithDefault("NOTION_RSS_FEEDS_DATABASE_ID", "NOTION_RSS_FEEDS_DATABASE_ID")
 
+	os.Unsetenv("NOTION_RSS_KEY")
+	os.Unsetenv("NOTION_RSS_CONTENT_DATABASE_ID")
+	os.Unsetenv("NOTION_RSS_FEEDS_DATABASE_ID")
+
 	_, err := runConstructNotionDaoFromEnvWith("", NOTION_RSS_CONTENT_DATABASE_ID, NOTION_RSS_FEEDS_DATABASE_ID)
 	if err == nil {
 		t.Errorf("ConstructNotionDaoFromEnvWith should return error if `NOTION_RSS_KEY` is not set")
