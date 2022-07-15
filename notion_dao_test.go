@@ -1,8 +1,11 @@
 package main
 
 import (
+	"github.com/jomei/notionapi"
+	"net/url"
 	"os"
 	"testing"
+	"time"
 )
 
 func runConstructNotionDaoFromEnvWith(rsskey string, content_database_id string, content_feeds_id string) (*NotionDao, error) {
@@ -83,22 +86,77 @@ func TestConstructNotionDaoFromEnv(t *testing.T) {
 	}
 }
 
-func TestGetOldUnstarredRSSItems(t *testing.T) {
 
-}
-
-func TestArchivePages(t *testing.T) {
-
-}
-
-func TestGetEnabledRssFeeds(t *testing.T) {
-
-}
-
+//GetRssFeedFromDatabaseObject(p *notionapi.Page) (*FeedDatabaseItem, error) {
+//urlProperty := p.Properties["Link"].(*notionapi.URLProperty).URL
+//rssUrl, err := url.Parse(urlProperty)
+//if err != nil {
+//return &FeedDatabaseItem{}, err
+//}
+//
+//nameRichTexts := p.Properties["Title"].(*notionapi.TitleProperty).Title
+//if len(nameRichTexts) == 0 {
+//return &FeedDatabaseItem{}, fmt.Errorf("RSS Feed database entry does not have any Title in 'Title' field")
+//}
+//
+//return &FeedDatabaseItem{
+//FeedLink:     rssUrl,
+//Created:      p.CreatedTime,
+//LastModified: p.LastEditedTime,
+//Name:         nameRichTexts[0].PlainText,
+//}, nil
+//}
 func TestGetRssFeedFromDatabaseObject(t *testing.T) {
+	type TestCase struct {
+		page *notionapi.Page
+		expectedDbItem *FeedDatabaseItem
+		expectedErr   error
+	}
 
-}
+	editedTime := time.Now()
+	repoUrl, _ := url.Parse("https://github.com/Jeadie/notion-rss")
+	tests := []TestCase{
+		{
+			page: &notionapi.Page{
+				LastEditedTime: editedTime,
+				Properties:     map[string]notionapi.Property{
+					"Title": &notionapi.TitleProperty{Title: []notionapi.RichText{{PlainText: "TestTitle"}}},
+					"Link": &notionapi.URLProperty{URL: repoUrl.String()},
+					"Enabled": &notionapi.CheckboxProperty{Checkbox: true},
+				},
+			},
+			expectedDbItem: &FeedDatabaseItem{
+				FeedLink:     repoUrl,
+				Name:         "TestTitle",
+				LastModified: editedTime,
+			},
+			expectedErr:    nil,
+		},
+	}
 
-func TestAddRssItem(t *testing.T) {
+	for _, test := range tests {
+		item, err := GetRssFeedFromDatabaseObject(test.page)
+
+		if err != test.expectedErr {
+			if err != nil {
+				t.Errorf("Unexpected error occurred. Error: %s \n", err.Error())
+			}
+			t.Errorf("Error was expected, but none returned. Expected error: %s \n", test.expectedErr.Error())
+		}
+
+		expectedItem := test.expectedDbItem
+		if item.Name != expectedItem.Name {
+			t.Errorf("Incorrect name of item. Expected %s, returned %s", expectedItem.Name, item.Name)
+		}
+		if item.FeedLink.String() != expectedItem.FeedLink.String() {
+			t.Errorf("Incorrect RSS feed url. Expected %s, returned %s", expectedItem.FeedLink, item.FeedLink)
+		}
+		if item.Created != expectedItem.Created {
+			t.Errorf("Incorrect created timestamp. Expected %s, returned %s", expectedItem.Created, item.Created)
+		}
+		if item.LastModified != expectedItem.LastModified {
+			t.Errorf("Incorrect last modified timestamp. Expected %s, returned %s", expectedItem.LastModified, item.LastModified)
+		}
+	}
 
 }
