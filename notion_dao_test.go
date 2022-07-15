@@ -87,7 +87,6 @@ func TestConstructNotionDaoFromEnv(t *testing.T) {
 	}
 }
 
-
 //GetRssFeedFromDatabaseObject(p *notionapi.Page) (*FeedDatabaseItem, error) {
 //urlProperty := p.Properties["Link"].(*notionapi.URLProperty).URL
 //rssUrl, err := url.Parse(urlProperty)
@@ -109,10 +108,10 @@ func TestConstructNotionDaoFromEnv(t *testing.T) {
 //}
 func TestGetRssFeedFromDatabaseObject(t *testing.T) {
 	type TestCase struct {
-		page *notionapi.Page
+		page           *notionapi.Page
 		expectedDbItem *FeedDatabaseItem
-		expectedErr   error
-		subTestName string
+		expectedErr    error
+		subTestName    string
 	}
 
 	editedTime := time.Now()
@@ -121,9 +120,9 @@ func TestGetRssFeedFromDatabaseObject(t *testing.T) {
 		{
 			page: &notionapi.Page{
 				LastEditedTime: editedTime,
-				Properties:     map[string]notionapi.Property{
-					"Title": &notionapi.TitleProperty{Title: []notionapi.RichText{{PlainText: "TestTitle"}}},
-					"Link": &notionapi.URLProperty{URL: repoUrl.String()},
+				Properties: map[string]notionapi.Property{
+					"Title":   &notionapi.TitleProperty{Title: []notionapi.RichText{{PlainText: "TestTitle"}}},
+					"Link":    &notionapi.URLProperty{URL: repoUrl.String()},
 					"Enabled": &notionapi.CheckboxProperty{Checkbox: true},
 				},
 			},
@@ -132,33 +131,33 @@ func TestGetRssFeedFromDatabaseObject(t *testing.T) {
 				Name:         "TestTitle",
 				LastModified: editedTime,
 			},
-			expectedErr:    nil,
+			expectedErr: nil,
 			subTestName: "valid parsing",
 		},
 		{
 			page: &notionapi.Page{
 				LastEditedTime: editedTime,
-				Properties:     map[string]notionapi.Property{
-					"Title": &notionapi.TitleProperty{},
-					"Link": &notionapi.URLProperty{URL: repoUrl.String()},
+				Properties: map[string]notionapi.Property{
+					"Title":   &notionapi.TitleProperty{},
+					"Link":    &notionapi.URLProperty{URL: repoUrl.String()},
 					"Enabled": &notionapi.CheckboxProperty{Checkbox: true},
 				},
 			},
 			expectedDbItem: &FeedDatabaseItem{},
 			expectedErr:    fmt.Errorf("failed"),
-			subTestName: "no Title element in TitleProperty",
+			subTestName:    "no Title element in TitleProperty",
 		},
 		{
 			page: &notionapi.Page{
 				LastEditedTime: editedTime,
-				Properties:     map[string]notionapi.Property{
-					"Link": &notionapi.URLProperty{URL: repoUrl.String()},
+				Properties: map[string]notionapi.Property{
+					"Link":    &notionapi.URLProperty{URL: repoUrl.String()},
 					"Enabled": &notionapi.CheckboxProperty{Checkbox: true},
 				},
 			},
 			expectedDbItem: &FeedDatabaseItem{},
 			expectedErr:    fmt.Errorf("failed"),
-			subTestName: "Missing TitleProperty",
+			subTestName:    "Missing TitleProperty",
 		},
 	}
 
