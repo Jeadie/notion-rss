@@ -43,9 +43,8 @@ func GetRssContent(feedDatabaseItems chan *FeedDatabaseItem, since time.Time) ch
 
 // GetRssContentFrom since afterTime from the RSS feed found at url.
 func GetRssContentFrom(feed *FeedDatabaseItem, afterTime time.Time) []*RssItem {
-	fp := gofeed.NewParser()
 	feedUrl := feed.FeedLink
-	feedContent, err := fp.ParseURL(feedUrl.String())
+	feedContent, err := gofeed.NewParser().ParseURL(feed.FeedLink.String())
 	if err != nil {
 		fmt.Println(fmt.Errorf("could not get content from rss url: %s. Error occurred %w", feedUrl, err).Error())
 		return []*RssItem{}
@@ -53,15 +52,20 @@ func GetRssContentFrom(feed *FeedDatabaseItem, afterTime time.Time) []*RssItem {
 
 	// If Feed entry is new, publish all the content from it.
 	publishAllItems := feed.Created.After(afterTime)
-	result := make([]*RssItem, len(feedContent.Items))
+	return ExtractRssContentFeed(feedContent, afterTime, publishAllItems, feed.Name)
+}
+
+// ExtractRssContentFeed Extract RSS content from an RSS feed
+func ExtractRssContentFeed(f *gofeed.Feed, afterTime time.Time, publishAllItems bool, databaseFeedName string) []*RssItem {
+	result := make([]*RssItem, len(f.Items))
 	count := 0
-	for _, item := range feedContent.Items {
+	for _, item := range f.Items {
 		if publishAllItems || item.PublishedParsed.After(afterTime) {
-			result[count] = convert(item, feed.Name)
+			result[count] = convert(item, databaseFeedName)
 			count++
 		}
 	}
-	fmt.Printf("Feed %s has %d items. %d are eligible to be uploaded\n", feedUrl.String(), len(feedContent.Items), count)
+	fmt.Printf("Feed %s has %d items. %d are eligible to be uploaded\n", f.Title, len(f.Items), count)
 	return result[:count]
 }
 
