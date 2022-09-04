@@ -3,10 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/jomei/notionapi"
 	"net/url"
 	"os"
 	"time"
+
+	"github.com/jomei/notionapi"
 )
 
 type NotionDao struct {
@@ -88,7 +89,14 @@ func (dao NotionDao) GetOldUnstarredRSSItemIds(olderThan time.Time) []notionapi.
 func (dao *NotionDao) ArchivePages(pageIds []notionapi.PageID) error {
 	failedCount := 0
 	for _, p := range pageIds {
-		_, err := dao.client.Page.Update(context.TODO(), p, &notionapi.PageUpdateRequest{Archived: true})
+		_, err := dao.client.Page.Update(
+			context.TODO(),
+			p,
+			&notionapi.PageUpdateRequest{
+				Archived:   true,
+				Properties: notionapi.Properties{}, // Must be provided, even if empty
+			},
+		)
 		if err != nil {
 			fmt.Printf("Failed to archive page: %s. Error: %s\n", p.String(), err.Error())
 			failedCount++
