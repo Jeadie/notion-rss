@@ -1,6 +1,23 @@
 # notion-rss
 Get RSS feeds in notion.so daily
 
+## Overview
+notion-rss lets you manage and retrieve all your RSS feeds in Notion.so.
+
+One can add rss feeds, and every day, a cron Github Action will trawl your RSS feeds for new content.
+![rss-feeds](assets/rss_feeds.png)
+
+Then you can find them all in Notion.so
+![rss-items](assets/rss_items.png)
+
+## Usage
+1. Fork the repo (it sets up Github Actions, etc)
+2. Create two databases in Notion with the properties defined below.
+3. Create a notion connection and get an API token.
+4. Add Github action secrets defined [below](#github-action-secrets) 
+5. Populate your Feeds Database in Notion
+6. Wait until tomorrow for new RSS content (or manually run the Github action .github/workflow/cron.yml)
+
 ## Database Interface
 This project uses two notion databases: to store RSS links (to subscribe to), to store the RSS content. 
 
