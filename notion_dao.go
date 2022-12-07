@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/jomei/notionapi"
@@ -171,6 +173,15 @@ func (dao NotionDao) AddRssItem(item RssItem) error {
 		}
 	}
 
+	// Extract the first image src from the document to use as cover
+	re := regexp.MustCompile(`(?m)<img\b[^>]+?src\s*=\s*['"]?([^\s'"?#>]+)`)
+	str := strings.Join(item.content, " ")
+	image_url := ""
+
+	for _, match := range re.FindAllStringSubmatch(str, 1) {
+		image_url = match[1]
+	}
+
 	_, err := dao.client.Page.Create(context.Background(), &notionapi.PageCreateRequest{
 		Parent: notionapi.Parent{
 			Type:       "database_id",
@@ -190,6 +201,10 @@ func (dao NotionDao) AddRssItem(item RssItem) error {
 				Type: "url",
 				URL:  item.link.String(),
 			},
+			"Thumbnail": notionapi.URLProperty{
+				Type: "url",
+				URL:  image_url,
+			},
 			"Categories": notionapi.MultiSelectProperty{
 				MultiSelect: categories,
 			},
@@ -197,6 +212,12 @@ func (dao NotionDao) AddRssItem(item RssItem) error {
 			"Published": notionapi.DateProperty{Date: &notionapi.DateObject{Start: (*notionapi.Date)(item.published)}},
 		},
 		Children: RssContentToBlocks(item),
+		Cover: &notionapi.Image{
+			Type: "external",
+			External: &notionapi.FileObject{
+				URL: image_url,
+			},
+		},
 	})
 	return err
 }

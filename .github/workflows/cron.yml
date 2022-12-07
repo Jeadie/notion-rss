@@ -1,6 +1,7 @@
 name: Get Feed
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: "0 14 * * *" # 12am AEST
 
