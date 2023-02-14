@@ -164,6 +164,17 @@ func GetRssFeedFromDatabaseObject(p *notionapi.Page) (*FeedDatabaseItem, error) 
 	}, nil
 }
 
+func GetImageUrl(x string) *string {
+	// Extract the first image src from the document to use as cover
+	re := regexp.MustCompile(`(?m)<img\b[^>]+?src\s*=\s*['"]?([^\s'"?#>]+)`)
+	match := re.Find([]byte(x))
+	var image string
+	if match != nil {
+		image = string(match)
+	}
+	return &image
+}
+
 // AddRssItem to Notion database as a single new page with Block content. On failure, no retry is attempted.
 func (dao NotionDao) AddRssItem(item RssItem) error {
 	categories := make([]notionapi.Option, len(item.categories))
@@ -172,16 +183,27 @@ func (dao NotionDao) AddRssItem(item RssItem) error {
 			Name: c,
 		}
 	}
+	var imageProp *notionapi.Image
+	// TODO: Currently notionapi.URLProperty is not nullable, which is needed
+	//   to use thumbnail properly (i.e. handle the case when no image in RSS item).
+	//thumbnailProp := &notionapi.URLProperty{
+	//	Type: "url",
+	//	URL: ,
+	//}
 
-	// Extract the first image src from the document to use as cover
-	re := regexp.MustCompile(`(?m)<img\b[^>]+?src\s*=\s*['"]?([^\s'"?#>]+)`)
-	str := strings.Join(item.content, " ")
-	image_url := ""
-
-	for _, match := range re.FindAllStringSubmatch(str, 1) {
-		image_url = match[1]
+	image := GetImageUrl(strings.Join(item.content, " "))
+	if image != nil {
+		imageProp = &notionapi.Image{
+			Type: "external",
+			External: &notionapi.FileObject{
+				URL: *image,
+			},
+		}
+		//thumbnailProp = &notionapi.URLProperty{
+		//	Type: "url",
+		//	URL:  *image,
+		//}
 	}
-
 	_, err := dao.client.Page.Create(context.Background(), &notionapi.PageCreateRequest{
 		Parent: notionapi.Parent{
 			Type:       "database_id",
@@ -201,10 +223,7 @@ func (dao NotionDao) AddRssItem(item RssItem) error {
 				Type: "url",
 				URL:  item.link.String(),
 			},
-			"Thumbnail": notionapi.URLProperty{
-				Type: "url",
-				URL:  image_url,
-			},
+			//"Thumbnail": thumbnailProp,
 			"Categories": notionapi.MultiSelectProperty{
 				MultiSelect: categories,
 			},
@@ -212,12 +231,7 @@ func (dao NotionDao) AddRssItem(item RssItem) error {
 			"Published": notionapi.DateProperty{Date: &notionapi.DateObject{Start: (*notionapi.Date)(item.published)}},
 		},
 		Children: RssContentToBlocks(item),
-		Cover: &notionapi.Image{
-			Type: "external",
-			External: &notionapi.FileObject{
-				URL: image_url,
-			},
-		},
+		Cover:    imageProp,
 	})
 	return err
 }
