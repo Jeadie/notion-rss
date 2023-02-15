@@ -167,12 +167,17 @@ func GetRssFeedFromDatabaseObject(p *notionapi.Page) (*FeedDatabaseItem, error) 
 func GetImageUrl(x string) *string {
 	// Extract the first image src from the document to use as cover
 	re := regexp.MustCompile(`(?m)<img\b[^>]+?src\s*=\s*['"]?([^\s'"?#>]+)`)
-	match := re.Find([]byte(x))
-	var image string
+	match := re.FindSubmatch([]byte(x))
 	if match != nil {
-		image = string(match)
+		v := string(match[1])
+		if strings.HasPrefix(v, "http") {
+			return &v
+		} else {
+			fmt.Printf("[ERROR]: Invalid image url found in <img> url=%s\n", string(match[1]))
+			return nil
+		}
 	}
-	return &image
+	return nil
 }
 
 // AddRssItem to Notion database as a single new page with Block content. On failure, no retry is attempted.
