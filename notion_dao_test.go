@@ -91,25 +91,25 @@ func TestConstructNotionDaoFromEnv(t *testing.T) {
 	}
 }
 
-//GetRssFeedFromDatabaseObject(p *notionapi.Page) (*FeedDatabaseItem, error) {
-//urlProperty := p.Properties["Link"].(*notionapi.URLProperty).URL
-//rssUrl, err := url.Parse(urlProperty)
-//if err != nil {
-//return &FeedDatabaseItem{}, err
-//}
+// GetRssFeedFromDatabaseObject(p *notionapi.Page) (*FeedDatabaseItem, error) {
+// urlProperty := p.Properties["Link"].(*notionapi.URLProperty).URL
+// rssUrl, err := url.Parse(urlProperty)
+// if err != nil {
+// return &FeedDatabaseItem{}, err
+// }
 //
-//nameRichTexts := p.Properties["Title"].(*notionapi.TitleProperty).Title
-//if len(nameRichTexts) == 0 {
-//return &FeedDatabaseItem{}, fmt.Errorf("RSS Feed database entry does not have any Title in 'Title' field")
-//}
+// nameRichTexts := p.Properties["Title"].(*notionapi.TitleProperty).Title
+// if len(nameRichTexts) == 0 {
+// return &FeedDatabaseItem{}, fmt.Errorf("RSS Feed database entry does not have any Title in 'Title' field")
+// }
 //
-//return &FeedDatabaseItem{
-//FeedLink:     rssUrl,
-//Created:      p.CreatedTime,
-//LastModified: p.LastEditedTime,
-//Name:         nameRichTexts[0].PlainText,
-//}, nil
-//}
+// return &FeedDatabaseItem{
+// FeedLink:     rssUrl,
+// Created:      p.CreatedTime,
+// LastModified: p.LastEditedTime,
+// Name:         nameRichTexts[0].PlainText,
+// }, nil
+// }
 func TestGetRssFeedFromDatabaseObject(t *testing.T) {
 	type TestCase struct {
 		page           *notionapi.Page

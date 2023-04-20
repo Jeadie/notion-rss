@@ -35,6 +35,7 @@ This project uses two notion databases: to store RSS links (to subscribe to), to
 | --- | :-- |
 | Title | title |
 | Link | Url |
+| Description | Text |
 | Enabled | Checkbox |
 | From | Select |
 | Categories | MultiSelect |

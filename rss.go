@@ -2,18 +2,20 @@ package main
 
 import (
 	"fmt"
-	"github.com/mmcdole/gofeed"
 	"net/url"
 	"time"
+
+	"github.com/mmcdole/gofeed"
 )
 
 type RssItem struct {
-	title      string
-	link       url.URL
-	content    []string
-	categories []string
-	feedName   string
-	published  *time.Time
+	title       string
+	link        url.URL
+	content     []string
+	categories  []string
+	feedName    string
+	published   *time.Time
+	description *string
 }
 
 type FeedDatabaseItem struct {
@@ -73,11 +75,12 @@ func ExtractRssContentFeed(f *gofeed.Feed, afterTime time.Time, publishAllItems 
 func convert(item *gofeed.Item, itemFeedName string) *RssItem {
 	link, _ := url.Parse(item.Link)
 	return &RssItem{
-		title:      item.Title,
-		link:       *link,
-		content:    []string{item.Content},
-		categories: item.Categories,
-		feedName:   itemFeedName,
-		published:  item.PublishedParsed,
+		title:       item.Title,
+		link:        *link,
+		content:     []string{item.Content},
+		categories:  item.Categories,
+		feedName:    itemFeedName,
+		published:   item.PublishedParsed,
+		description: &item.Description,
 	}
 }

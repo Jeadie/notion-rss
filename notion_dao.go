@@ -204,11 +204,8 @@ func (dao NotionDao) AddRssItem(item RssItem) error {
 				URL: *image,
 			},
 		}
-		//thumbnailProp = &notionapi.URLProperty{
-		//	Type: "url",
-		//	URL:  *image,
-		//}
 	}
+
 	_, err := dao.client.Page.Create(context.Background(), &notionapi.PageCreateRequest{
 		Parent: notionapi.Parent{
 			Type:       "database_id",
@@ -224,11 +221,21 @@ func (dao NotionDao) AddRssItem(item RssItem) error {
 					},
 				}},
 			},
+			"Description": notionapi.RichTextProperty{
+				Type: "rich_text",
+				RichText: []notionapi.RichText{{
+					Type: notionapi.ObjectTypeText,
+					Text: notionapi.Text{
+						Content: *item.description,
+					},
+					PlainText: *item.description,
+				},
+				},
+			},
 			"Link": notionapi.URLProperty{
 				Type: "url",
 				URL:  item.link.String(),
 			},
-			//"Thumbnail": thumbnailProp,
 			"Categories": notionapi.MultiSelectProperty{
 				MultiSelect: categories,
 			},
