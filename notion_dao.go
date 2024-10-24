@@ -216,22 +216,22 @@ func (dao NotionDao) AddRssItem(item RssItem) error {
 				Type: "title",
 				Title: []notionapi.RichText{{
 					Type: "text",
-					Text: notionapi.Text{
+					Text: &notionapi.Text{
 						Content: item.title,
 					},
 				}},
 			},
-			"Description": notionapi.RichTextProperty{
-				Type: "rich_text",
-				RichText: []notionapi.RichText{{
-					Type: notionapi.ObjectTypeText,
-					Text: notionapi.Text{
-						Content: *item.description,
-					},
-					PlainText: *item.description,
-				},
-				},
-			},
+			// "Description": notionapi.RichTextProperty{
+			// 	Type: "rich_text",
+			// 	RichText: []notionapi.RichText{{
+			// 		Type: notionapi.ObjectTypeText,
+			// 		Text: &notionapi.Text{
+			// 			Content: *item.description,
+			// 		},
+			// 		PlainText: *item.description,
+			// 	},
+			// 	},
+			// },
 			"Link": notionapi.URLProperty{
 				Type: "url",
 				URL:  item.link.String(),
