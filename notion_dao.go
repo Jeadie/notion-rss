@@ -206,7 +206,14 @@ func (dao NotionDao) AddRssItem(item RssItem) error {
 		}
 	}
 
-	_, err := dao.client.Page.Create(context.Background(), &notionapi.PageCreateRequest{
+	db, err := dao.client.Database.Get(context.Background(), dao.contentDatabaseId)
+	if err != nil {
+		fmt.Printf("Failed to get database. Error: %s\n", err.Error())
+		return err
+	}
+	fmt.Printf("db.properties %v\n", db.Properties)
+
+	_, err = dao.client.Page.Create(context.Background(), &notionapi.PageCreateRequest{
 		Parent: notionapi.Parent{
 			Type:       "database_id",
 			DatabaseID: dao.contentDatabaseId,
@@ -221,17 +228,17 @@ func (dao NotionDao) AddRssItem(item RssItem) error {
 					},
 				}},
 			},
-			// "Description": notionapi.RichTextProperty{
-			// 	Type: "rich_text",
-			// 	RichText: []notionapi.RichText{{
-			// 		Type: notionapi.ObjectTypeText,
-			// 		Text: &notionapi.Text{
-			// 			Content: *item.description,
-			// 		},
-			// 		PlainText: *item.description,
-			// 	},
-			// 	},
-			// },
+			"Description": notionapi.RichTextProperty{
+				Type: "rich_text",
+				RichText: []notionapi.RichText{{
+					Type: notionapi.ObjectTypeText,
+					Text: &notionapi.Text{
+						Content: *item.description,
+					},
+					PlainText: *item.description,
+				},
+				},
+			},
 			"Link": notionapi.URLProperty{
 				Type: "url",
 				URL:  item.link.String(),
