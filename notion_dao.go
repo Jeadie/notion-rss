@@ -211,7 +211,7 @@ func (dao NotionDao) AddRssItem(item RssItem) error {
 		fmt.Printf("Failed to get database. Error: %s\n", err.Error())
 		return err
 	}
-	fmt.Printf("db.properties %v\n", db.Properties)
+	fmt.Printf("db.properties %v, url: %v\n", db.Properties, db.URL)
 
 	_, err = dao.client.Page.Create(context.Background(), &notionapi.PageCreateRequest{
 		Parent: notionapi.Parent{
